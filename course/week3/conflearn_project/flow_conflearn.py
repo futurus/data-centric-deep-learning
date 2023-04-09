@@ -168,6 +168,25 @@ class TrainIdentifyReview(FlowSpec):
       # --
       # probs_: np.array[float] (shape: |test set|)
       # ===============================================
+      
+      # pylint: disable=E1101
+      X_train, X_test = torch.from_numpy(X[train_index]), torch.from_numpy(X[test_index])
+      y_train, y_test = torch.from_numpy(y[train_index]), torch.from_numpy(y[test_index])
+      
+      ds_train = TensorDataset(X_train, y_train)
+      ds_test = TensorDataset(X_test, y_test)
+
+      dl_train = DataLoader(ds_train, batch_size=32, shuffle=True)
+      dl_test = DataLoader(ds_test, batch_size=32, shuffle=False)
+
+      system = SentimentClassifierSystem(self.config)
+      trainer = Trainer(10)
+      trainer.fit(system, dl_train)
+
+      probs = trainer.test(system, dataloaders=dl_test)
+      probs_ = torch.cat(probs_).squeeze(1).numpy()
+      # pylint: enable=E1101
+
       assert probs_ is not None, "`probs_` is not defined."
       probs[test_index] = probs_
 
@@ -196,8 +215,8 @@ class TrainIdentifyReview(FlowSpec):
     prob = np.stack([1 - prob, prob]).T
   
     # rank label indices by issues
-    ranked_label_issues = None
-    
+    ranked_label_issues = find_label_issues(np.asarray(self.all_df.label), prob, return_indices_ranked_by="self_confidence",)
+
     # =============================
     # FILL ME OUT
     # 
@@ -308,6 +327,10 @@ class TrainIdentifyReview(FlowSpec):
     # dm.dev_dataset.data = dev slice of self.all_df
     # dm.test_dataset.data = test slice of self.all_df
     # # ====================================
+
+    dm.train_dataset.data = self.all_df[:train_size]
+    dm.dev_dataset.data = self.all_df[train_size:dev_size]
+    dm.test_dataset.data = self.all_df[dev_size:]
 
     # start from scratch
     system = SentimentClassifierSystem(self.config)
