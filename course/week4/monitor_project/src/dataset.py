@@ -31,6 +31,10 @@ class ProductReviewEmbeddings(Dataset):
 
   def get_vocab(self):
     vocab = defaultdict(lambda: 0)
+    for review in self.data.review:
+      tokens = review.split()
+      for token in tokens:
+        vocab[token.lower()] += 1
     # ===============================
     # FILL ME OUT
     # 
@@ -94,6 +98,10 @@ class ProductReviewStream(Dataset):
   def get_vocab(self):
     # `defaultdict` can be a helpful utility
     vocab = defaultdict(lambda: 0)
+    for review in self.data.review:
+      tokens = review.split()
+      for token in tokens:
+        vocab[token.lower()] += 1
     # ===============================
     # FILL ME OUT
     # 

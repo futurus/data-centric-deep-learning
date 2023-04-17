@@ -31,7 +31,7 @@ class EvalClassifier(FlowSpec):
   config (str, default: ./configs/eval.json): path to a configuration file
   """
   config_path = Parameter('config', 
-    help = 'path to config file', default = join(CONFIG_DIR, 'eval.json'))
+    help = 'path to config file', default = join(CONFIG_DIR, 'eval_dro.json'))
   
   @step
   def start(self):

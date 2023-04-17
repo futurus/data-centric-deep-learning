@@ -177,6 +177,10 @@ class RobustSentimentSystem(SentimentClassifierSystem):
     loss = F.binary_cross_entropy_with_logits(
       logits.squeeze(1), labels.float(), reduction='none')
 
+    loss0 = torch.mean(loss[groups==0])
+    loss1 = torch.mean(loss[groups==1])
+    loss = torch.maximum(loss0, loss1)
+
     # =================================
     # FILL ME OUT
     # 
